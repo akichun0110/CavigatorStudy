@@ -9,12 +9,20 @@
 
 
 import UIKit
+import SpriteKit
+import AVFoundation
 
 class ViewController: UIViewController, NSURLSessionDownloadDelegate {
     
+    // Download
     @IBOutlet weak var progressView: UIProgressView!
+    // Play Sound
+    @IBOutlet weak var playBtn: UIButton!
     
     var fileName: String!
+    var myAudioPlayer : AVAudioPlayer!
+    var downloadPath : NSString?
+    var itemArray : [String] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,6 +39,19 @@ class ViewController: UIViewController, NSURLSessionDownloadDelegate {
         downloadButton.addTarget(self, action: Selector("downloadWithFile"), forControlEvents: .TouchUpInside)
         self.view.addSubview(downloadButton)
         
+        
+        
+        
+        //-------UIObject設置--------//
+        //ボタンの生成(Play)
+        playBtn.backgroundColor = UIColor.cyanColor()
+        playBtn.setTitle("▶︎", forState: UIControlState.Normal)
+        playBtn.layer.masksToBounds = true
+        playBtn.layer.cornerRadius = 50.0
+        playBtn.titleLabel!.font = UIFont(name: "▶︎", size: 80.0)
+        //myAudioPlayer.volume = DEFAULT_VOLUME / 100
+        //myAudioPlayer.currentTime = 0.0
+        
     }
     
     @IBAction func tappedStartSession(sender: AnyObject) {
@@ -38,7 +59,7 @@ class ViewController: UIViewController, NSURLSessionDownloadDelegate {
     }
     
     func downloadWithFile() {
-        var accessUrl: String = "http://54.68.143.213/CaviNet/Lan001/Voice/Loc031.ogg" // アクセス先のURL
+        var accessUrl: String = "http://54.68.143.213/cgi-bin/getLocation.cgi?lang=Lan001" // アクセス先のURL
         // ファイル名を取り出す
         var pos = (accessUrl as NSString).rangeOfString("/", options:NSStringCompareOptions.BackwardsSearch).location
         fileName = accessUrl.substringFromIndex(advance(accessUrl.startIndex, pos+1))
@@ -85,6 +106,7 @@ class ViewController: UIViewController, NSURLSessionDownloadDelegate {
             let libraryPath = NSSearchPathForDirectoriesInDomains(.LibraryDirectory, .UserDomainMask, true)[0] as! String
             
             let languagePath = libraryPath + "/LanguageFiles"
+            downloadPath = NSString(UTF8String: languagePath)
             
             // ディレクトリの生成
             if (NSFileManager.defaultManager().fileExistsAtPath(languagePath)) {
@@ -97,11 +119,44 @@ class ViewController: UIViewController, NSURLSessionDownloadDelegate {
             
             fileData?.writeToFile("\(languagePath)/\(fileName)", atomically: false) // ファイル書き込み
             
+            print("location: ")
             println(location)
+            print("Path: ")
+            println(languagePath)
+            
+            // Preferenceに保存するテスト
+            let userDefaults = NSUserDefaults.standardUserDefaults()
+            //userDefaults.setObject(fileData, forKey: "LanguageList")
+            //userDefaults.synchronize()
+            // Preferenceからの読み出し
+            var nsData: NSData = userDefaults.dataForKey("LanguageList")!
+            var str = NSString(data: nsData, encoding:NSUTF8StringEncoding) as! String
+            //println(str)
+            
+            var lineIndex = 0;
+            str.enumerateLines { line, stop in
+                
+                // ここに1行ずつ行いたい処理を書く
+                //println("\(lineIndex) : \(line)")
+                self.itemArray = split(line, allowEmptySlices: true, isSeparator: {$0==","})
+                println(self.itemArray[0])
+                
+                //ここでAVAudioPlayerを逐次作成する
+                
+                lineIndex += 1
+            }
+
+            
+            
+            
+            
+            
         }
         
         session.invalidateAndCancel()
         println("finish")
+        
+        myAudioPlayer = makeAudioPlayer(downloadPath!)
     }
     
     // do not backup attribute 付与
@@ -120,4 +175,46 @@ class ViewController: UIViewController, NSURLSessionDownloadDelegate {
         println(success)
         return success;
     }
+    
+    
+    
+    /*
+     *  Play Sound Function
+     *
+     */
+    
+    // AVAudioPlayer作成
+    func makeAudioPlayer(soundDir: NSString) -> AVAudioPlayer {
+        
+        var soundName = (soundDir as String) + "/test.mp3"
+        let path : NSURL = NSURL.fileURLWithPath(soundName as String)!
+        println(path)
+        //let path = NSBundle.mainBundle().pathForResource(soundName, ofType: "")!
+        //let url = NSURL.fileURLWithPath(soundName as String)
+        
+        //AudioPlayer 作成
+        return AVAudioPlayer(contentsOfURL: path, error: nil)
+    }
+    
+    
+    
+    
+    
+    
+    
+    @IBAction func onClickPlayBtn(sender: AnyObject) {
+        if myAudioPlayer.playing == true {
+            //myAudioPlayerを一時停止.
+            myAudioPlayer.pause()
+            sender.setTitle("▶︎", forState: .Normal)
+        } else {
+            //myAudioPlayerの再生.
+            myAudioPlayer.play()
+            sender.setTitle("■", forState: .Normal)
+        }
+    }
+    
+    
+    
+    
 }

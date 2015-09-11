@@ -7,14 +7,14 @@
 	<key>IDESourceControlProjectIdentifier</key>
 	<string>B571DCAF-CA79-45C7-B8C5-2A5F5AEBDA44</string>
 	<key>IDESourceControlProjectName</key>
-	<string>project</string>
+	<string>testApp</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>9E02845BDC2C42C1A09A71198B5CAC3AC632197D</key>
 		<string>https://github.com/akichun0110/CavigatorStudy.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>testApp/testApp.xcodeproj/project.xcworkspace</string>
+	<string>testApp/testApp.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>9E02845BDC2C42C1A09A71198B5CAC3AC632197D</key>
